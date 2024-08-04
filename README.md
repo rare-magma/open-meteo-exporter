@@ -46,7 +46,9 @@ Bash script that uploads the current air quality and weather data from the Open-
 1. Configure `open_meteo_exporter.conf` (see the configuration section below).
 1. Run it.
 
-   `docker run --rm --init --tty --interactive --volume $(pwd):/app localhost/open-meteo-exporter`
+   ```bash
+    docker run --rm --init --tty --interactive --read-only --cap-drop ALL --security-opt no-new-privileges:true --cpus 2 -m 64m --pids-limit 16 --volume ./open_meteo_exporter.conf:/app/open_meteo_exporter.conf:ro ghcr.io/rare-magma/open-meteo-exporter:latest
+    ```
 
 ### With the Makefile
 
