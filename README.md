@@ -2,6 +2,38 @@
 
 Bash script that uploads the current air quality and weather data from the Open-Meteo API to influxdb on an hourly basis
 
+# I no longer use this so development of this tool has ceased. Feel free to fork it
+
+If using telegraf + influxdb the same outcome can be achieved via `input.http` [plugin](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/http) + `json_v2` [parser](https://github.com/influxdata/telegraf/tree/master/plugins/parsers/json_v2) with the following config (just need to set the correct latitude/longitude in the URL query parameter):
+
+```ini
+[[inputs.http]]
+  name_override = "open_meteo_air_quality"
+  interval = "5m"
+  startup_error_behavior = "retry"
+  urls = [
+    "https://air-quality-api.open-meteo.com/v1/air-quality?timeformat=unixtime&latitude=$LATITUDE&longitude=$LONGITUDE&current=european_aqi,us_aqi,pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,sulphur_dioxide,ozone,aerosol_optical_depth,dust,uv_index,uv_index_clear_sky"
+  ]
+  data_format = "json_v2"
+  [[inputs.http.json_v2]]
+        [[inputs.http.json_v2.object]]
+            path = "current"
+            disable_prepend_keys = true
+
+[[inputs.http]]
+  name_override = "open_meteo_current_weather"
+  interval = "5m"
+  startup_error_behavior = "retry"
+  urls = [
+    "https://api.open-meteo.com/v1/forecast?timeformat=unixtime&latitude=$LATITUDE&longitude=$LONGITUDE&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,rain,showers,snowfall,weather_code,cloud_cover,pressure_msl,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m"
+  ]
+  data_format = "json_v2"
+  [[inputs.http.json_v2]]
+        [[inputs.http.json_v2.object]]
+            path = "current"
+            disable_prepend_keys = true
+```
+
 ## Dependencies
 
 - [awk](https://www.gnu.org/software/gawk/manual/gawk.html)
